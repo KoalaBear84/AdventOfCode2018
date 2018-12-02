@@ -72,8 +72,6 @@ namespace Day01
             stopwatch.Stop();
 
             ConsoleEx.WriteLine($"Star {star}. {stopwatch.ElapsedMilliseconds}ms. Answer: {frequency}", ConsoleColor.Yellow);
-
-            Console.WriteLine($"Elapsed time: {stopwatch.ElapsedMilliseconds}ms");
         }
 
         private static Command ParseCommand(string command)
