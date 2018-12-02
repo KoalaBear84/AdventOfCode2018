@@ -9,3 +9,4 @@
 *.sdf
 bin/
 obj/
+/.vs
