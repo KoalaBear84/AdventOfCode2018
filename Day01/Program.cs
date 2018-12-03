@@ -35,8 +35,12 @@ namespace Day01
 
             HashSet<int> visitedFrequencies = new HashSet<int>();
 
+            int loops = 0;
+
             while (true)
             {
+                loops++;
+
                 foreach (string inputLine in inputLines)
                 {
                     Command command = ParseCommand(inputLine);
@@ -71,7 +75,7 @@ namespace Day01
 
             stopwatch.Stop();
 
-            ConsoleEx.WriteLine($"Star {star}. {stopwatch.ElapsedMilliseconds}ms. Answer: {frequency}", ConsoleColor.Yellow);
+            ConsoleEx.WriteLine($"Star {star}. {stopwatch.ElapsedMilliseconds}ms. Loops: {loops}. Answer: {frequency}", ConsoleColor.Yellow);
         }
 
         private static Command ParseCommand(string command)
