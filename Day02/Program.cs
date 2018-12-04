@@ -45,6 +45,8 @@ namespace Day02
 
             int checksum = charactersTwoTimes * charactersThreeTimes;
 
+            stopwatch.Stop();
+
             ConsoleEx.WriteLine($"Star 1. {stopwatch.ElapsedMilliseconds}ms. Answer: {checksum}", ConsoleColor.Yellow);
         }
 
@@ -74,6 +76,8 @@ namespace Day02
                     }
                 }
             }
+
+            stopwatch.Stop();
 
             ConsoleEx.WriteLine($"Star 2. {stopwatch.ElapsedMilliseconds}ms. Answer: {closestMatch}", ConsoleColor.Yellow);
         }
