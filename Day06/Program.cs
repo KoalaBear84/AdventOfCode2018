@@ -21,7 +21,8 @@ namespace Day06
 
             List<Point> points = ParseInput(inputLines);
 
-            ProcessInputStar1(points);
+            ProcessInput(points, star: 1);
+            ProcessInput(points, star: 2);
 
             ConsoleEx.WriteLine("END", ConsoleColor.Green);
             Console.ReadKey();
@@ -45,17 +46,57 @@ namespace Day06
             return points;
         }
 
-        private static void ProcessInputStar1(List<Point> points)
+        private static void ProcessInput(List<Point> points, int star = 1)
         {
             Point[] pointsArray = points.ToArray();
 
             Stopwatch stopwatch = Stopwatch.StartNew();
 
-            int maxX = points.Max(p => p.X) + 1;
-            int maxY = points.Max(p => p.Y) + 1;
+            FillGrid(points, pointsArray, out int maxX, out int maxY, out GridPoint[,] grid, out Dictionary<int, int> counts);
 
-            GridPoint[,] grid = new GridPoint[maxX, maxY];
-            Dictionary<int, int> counts = new Dictionary<int, int>();
+            SaveGridToHtmlFile(grid);
+
+            List<GridPoint> allPoints = AllPoints(grid);
+
+            if (star == 1)
+            {
+                KeyValuePair<int, int> pointIndexArea = counts.OrderByDescending(c => c.Value).First();
+
+                // Get the largest area not touching the sides (largest area which is not infinite as required)
+                while (true)
+                {
+                    var res = allPoints.Where(ap => ap?.PointIndex == pointIndexArea.Key);
+
+                    if (!res.Any(gp => gp.Point.X == 0 || gp.Point.Y == 0 || gp.Point.X == maxX - 1 || gp.Point.Y == maxY - 1))
+                    {
+                        break;
+                    }
+
+                    counts.Remove(pointIndexArea.Key);
+
+                    pointIndexArea = counts.OrderByDescending(c => c.Value).First();
+                }
+
+                stopwatch.Stop();
+
+                ConsoleEx.WriteLine($"Star 1. {stopwatch.ElapsedMilliseconds}ms. Answer: {pointIndexArea.Value} [{pointIndexArea.Key}]", ConsoleColor.Yellow);
+            }
+            else
+            {
+                IEnumerable<GridPoint> distanceUpTo10000 = allPoints.Where(p => p?.TotalDistancesToAllPoints <= 10000);
+
+                stopwatch.Stop();
+
+                ConsoleEx.WriteLine($"Star 2. {stopwatch.ElapsedMilliseconds}ms. Answer: {distanceUpTo10000.Count()}", ConsoleColor.Yellow);
+            }
+        }
+
+        private static void FillGrid(List<Point> points, Point[] pointsArray, out int maxX, out int maxY, out GridPoint[,] grid, out Dictionary<int, int> counts)
+        {
+            maxX = points.Max(p => p.X) + 1;
+            maxY = points.Max(p => p.Y) + 1;
+            grid = new GridPoint[maxX, maxY];
+            counts = new Dictionary<int, int>();
 
             for (int x = 0; x < grid.GetLength(0); x++)
             {
@@ -86,42 +127,24 @@ namespace Day06
                         }
 
                         counts[pointIndex]++;
-
-                        grid[x, y] = new GridPoint
-                        {
-                            PointIndex = pointIndex,
-                            PointOriginal = pointsArray[pointIndex],
-                            Point = new Point(x, y),
-                            ExactPoint = closestGroup.Distance == 0
-                        };
                     }
+
+                    GridPoint gridPoint = new GridPoint
+                    {
+                        PointIndex = pointIndex,
+                        Point = new Point(x, y),
+                        ExactPoint = closestGroup.Distance == 0,
+                        TotalDistancesToAllPoints = groupedByDistance.Sum(g => g.Distance * g.Points.Count)
+                    };
+
+                    if (pointIndex != -1)
+                    {
+                        gridPoint.PointOriginal = pointsArray[pointIndex];
+                    }
+
+                    grid[x, y] = gridPoint;
                 }
             }
-
-            DrawGrid(grid);
-
-            List<GridPoint> allPoints = AllPoints(grid);
-
-            KeyValuePair<int, int> pointIndexArea = counts.OrderByDescending(c => c.Value).First();
-
-            // Get the largest area not touching the sides (largest area which is not infinite as required)
-            while (true)
-            {
-                var res = allPoints.Where(ap => ap?.PointIndex == pointIndexArea.Key);
-
-                if (!res.Any(gp => gp.Point.X == 0 || gp.Point.Y == 0 || gp.Point.X == maxX-1 || gp.Point.Y == maxY-1))
-                {
-                    break;
-                }
-
-                counts.Remove(pointIndexArea.Key);
-
-                pointIndexArea = counts.OrderByDescending(c => c.Value).First();
-            }
-
-            stopwatch.Stop();
-
-            ConsoleEx.WriteLine($"Star 1. {stopwatch.ElapsedMilliseconds}ms. Answer: {pointIndexArea.Value} [{pointIndexArea.Key}]", ConsoleColor.Yellow);
         }
 
         private static List<GridPoint> AllPoints(GridPoint[,] grid)
@@ -143,7 +166,7 @@ namespace Day06
         /// Draw grid to HTML (with real input not really 'viewable' :P
         /// </summary>
         /// <param name="grid">Grid</param>
-        private static void DrawGrid(GridPoint[,] grid)
+        private static void SaveGridToHtmlFile(GridPoint[,] grid)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -189,6 +212,7 @@ namespace Day06
             public Point Point { get; set; }
             public Point PointOriginal { get; set; }
             public bool ExactPoint { get; set; }
+            public int TotalDistancesToAllPoints { get; set; }
         }
     }
 }
