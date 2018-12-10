@@ -11,8 +11,8 @@ namespace Day04
 {
     class Program
     {
-        static Regex Regex1 = new Regex(@"\[(?<DateTime>\d+-\d+-\d+ \d+:\d+)\] (?<Description>.*)");
-        static Regex Regex2 = new Regex(@"#(?<GuardNumber>\d+)");
+        static readonly Regex Regex1 = new Regex(@"\[(?<DateTime>\d+-\d+-\d+ \d+:\d+)\] (?<Description>.*)");
+        static readonly Regex Regex2 = new Regex(@"#(?<GuardNumber>\d+)");
 
         static async Task Main(string[] args)
         {
